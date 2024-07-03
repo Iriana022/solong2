@@ -6,7 +6,7 @@
 /*   By: irazafim <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 15:13:06 by irazafim          #+#    #+#             */
-/*   Updated: 2024/06/13 15:13:09 by irazafim         ###   ########.fr       */
+/*   Updated: 2024/07/03 12:57:08 by irazafim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ typedef struct s_data
 	void *mlx;
 	void *win;
 	char **map;
+	s_coord pos_pers;
 	s_coord pos;
 }	t_data;
 
@@ -116,6 +117,26 @@ void *img_return(char *path, t_data *mlx)
 	return (mlx_xpm_file_to_image(mlx->mlx, path, &width, &height));
 }
 
+int valid_move_left(char **map, int x, int y)
+{
+	return (map[y][x - 1] != '1');
+}
+
+int valid_move_right(char **map, int x, int y)
+{
+	return (map[y][x + 1] != '1');
+}
+
+int valid_move_top(char **map, int x, int y)
+{
+	return (map[y - 1][x] != '1');
+}
+
+int valid_move_bottom(char **map, int x, int y)
+{
+	return (map[y + 1][x] != '1');
+}
+
 void put_pos(char **matrix_map, t_data mlx, s_coord pos, int x, int y)
 {
 	mlx_clear_window(mlx.mlx, mlx.win);
@@ -125,16 +146,14 @@ void put_pos(char **matrix_map, t_data mlx, s_coord pos, int x, int y)
 		while (matrix_map[pos.y][pos.x] != '\0')
 		{ 
 			if (matrix_map[pos.y][pos.x] == 'P')
-                                mlx_put_image_to_window(mlx.mlx, mlx.win, img_return("./assets/Terrain/characters.xpm", &mlx), (pos.x) * 48 + x, pos.y * 48 + y);
-                        
-			if (matrix_map[pos.y][pos.x] == '1')
-                                mlx_put_image_to_window(mlx.mlx, mlx.win, img_return("./assets/Terrain/wall.xpm", &mlx), pos.x * 48, pos.y * 48);
-                        if (matrix_map[pos.y][pos.x] == 'C')
-                                mlx_put_image_to_window(mlx.mlx, mlx.win, img_return("./assets/Terrain/strawberry.xpm", &mlx), pos.x * 48, pos.x * 48);
-                       if (matrix_map[pos.y][pos.x] == 'E')
-                                mlx_put_image_to_window(mlx.mlx, mlx.win, img_return("./assets/Terrain/exit.xpm", &mlx), pos.x * 48, pos.y * 48);
-
-                        pos.x++;
+				mlx_put_image_to_window(mlx.mlx, mlx.win, img_return("./assets/Terrain/characters.xpm", &mlx), pos.x * 48 + x, pos.y * 48 + y);
+            if (matrix_map[pos.y][pos.x] == '1')
+            	mlx_put_image_to_window(mlx.mlx, mlx.win, img_return("./assets/Terrain/wall.xpm", &mlx), pos.x * 48, pos.y * 48);
+            if (matrix_map[pos.y][pos.x] == 'C')
+            	mlx_put_image_to_window(mlx.mlx, mlx.win, img_return("./assets/Terrain/strawberry.xpm", &mlx), pos.x * 48, pos.x * 48);
+            if (matrix_map[pos.y][pos.x] == 'E')
+                mlx_put_image_to_window(mlx.mlx, mlx.win, img_return("./assets/Terrain/exit.xpm", &mlx), pos.x * 48, pos.y * 48);
+            pos.x++;
 		}
 		pos.y++;
 	}
@@ -146,30 +165,23 @@ int key_press(int keycode, void *param)
 	t_data *data = (t_data *)param;
 	static int  x = 0;
 	static int y = 0;
-	int new_x;
-	int new_y;
-
-	new_x = x;
-	new_y = y;
+	
 	if(keycode == XK_Escape)
 	{
 		mlx_destroy_window(data->mlx, data->win);
 		exit(0);
 	}
 	else if(keycode == XK_d)
-		new_x += 48;
+		x += 48;
 	else if(keycode == XK_a)
-		new_x -= 48;
+		x -= 48;
 	else if(keycode == XK_w)
-		new_y -= 48;
+		y -= 48;
 	else if(keycode == XK_s)
-		new_y += 48;
+		y += 48;
 	
-	printf("%c\n", data->map[new_x/48][new_y/48]);
-	x = new_x;
-	y = new_y;
 	put_pos(data->map, *data, data->pos, x, y);
-
+	
 	return (0);
 }
 
