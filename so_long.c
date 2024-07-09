@@ -6,26 +6,13 @@
 /*   By: irazafim <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 15:13:06 by irazafim          #+#    #+#             */
-/*   Updated: 2024/07/09 12:18:25 by irazafim         ###   ########.fr       */
+/*   Updated: 2024/07/09 15:55:35 by irazafim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 #include <X11/keysym.h>
 #include <stdio.h>
-#define BUFFER_SIZE 1024
-typedef struct s_coord 
-{
-	int x;
-	int y;
-}	s_coord;
-typedef struct s_data
-{
-	void *mlx;
-	void *win;
-	char **map;
-	s_coord *pos_pers;
-}	t_data;
 
 void mtoa(char ***arr, int lines, int col, char *buf)
 {
@@ -52,14 +39,14 @@ void mtoa(char ***arr, int lines, int col, char *buf)
 	(*arr)[lines] = NULL;
 }
 
-s_coord	*catch_pos(char **map)
+t_coord	*catch_pos(char **map)
 {
 	int i;
 	int j;
-	s_coord	*coord;
+	t_coord	*coord;
 
 	i = 0;
-	coord = malloc(sizeof(s_coord));
+	coord = malloc(sizeof(t_coord));
 	if (NULL == coord)
 		return (NULL);
 	coord->x = 0;
@@ -147,24 +134,6 @@ void *img_return(char *path, t_data *mlx)
 	return (mlx_xpm_file_to_image(mlx->mlx, path, &width, &height));
 }
 
-/*void put_img(char **map, t_data mlx, s_coord pos)
-{
-	while (map[pos.y] != NULL)
-	{
-		pos.x = 0;
-		while (map[pos.y][pos.x] != '\0')
-		{
-			if (map[pos.y][pos.x] == '1') 
-				mlx_put_image_to_window(mlx.mlx, mlx.win, img_return("./assets/Terrain/wall.xpm", &mlx), pos.x * 48, pos.y * 48);
-			if (map[pos.y][pos.x] == 'C') 
-				mlx_put_image_to_window(mlx.mlx, mlx.win, img_return("./assets/Terrain/strawberry.xpm", &mlx), pos.x * 48, pos.x * 48);
-			if (map[pos.y][pos.x] == 'E') 
-				mlx_put_image_to_window(mlx.mlx, mlx.win, img_return("./assets/Terrain/exit.xpm", &mlx), pos.x * 48, pos.y * 48);
-			pos.x++;
-		}
-	}
-}*/
-
 void put_pos(char **matrix_map, t_data mlx)
 {
 	int y;
@@ -208,7 +177,7 @@ void	print_map(char **map)
 	}
 }
 
-void move(char **map, char direction, s_coord pos)
+void move(char **map, char direction, t_coord pos)
 {
 	if (direction == 'l')
 	{
@@ -283,7 +252,7 @@ int main()
 	t_data mlx;
 
 	mlx.mlx = mlx_init();
-	fd = open("carte2.ber", O_RDONLY);
+	fd = open("carte3.ber", O_RDONLY);
 	mlx.map = count_lines_map(fd);
 	mlx.win = mlx_new_window(mlx.mlx, 48 * ft_strlen(mlx.map[0]), 48 * ft_len(mlx.map), "solong");
 	put_pos(mlx.map,  mlx);
