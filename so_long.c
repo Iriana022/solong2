@@ -6,7 +6,7 @@
 /*   By: irazafim <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 15:13:06 by irazafim          #+#    #+#             */
-/*   Updated: 2024/07/10 10:41:22 by irazafim         ###   ########.fr       */
+/*   Updated: 2024/07/10 11:42:06 by irazafim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,20 +212,24 @@ void move(char **map, char direction, t_coord pos)
 	}
 }
 
+int on_destroy(t_data *data)
+{
+	free(data->pos_pers);
+	free_array_image(5, data);
+	mlx_destroy_window(data->mlx, data->win);
+	mlx_destroy_display(data->mlx);
+	free(data->mlx);
+	free_double(data->map, ft_len(data->map));
+	exit(0);
+	return (0);
+}
+
 int key_press(int keycode, void *param)
 {
 	t_data *data = (t_data *)param;
 		
 	if(keycode == XK_Escape)
-	{
-		free(data->pos_pers);
-		free_array_image(5, data);
-		mlx_destroy_window(data->mlx, data->win);
-		mlx_destroy_display(data->mlx);
-		free(data->mlx);
-		free_double(data->map, ft_len(data->map));
-		exit(0);
-	}
+		on_destroy(data);
 	else if(keycode == XK_d)
 	{
 		if (invalid_move(data->pos_pers->x + 1, data->pos_pers->y, data->map) || (data->map[data->pos_pers->y][data->pos_pers->x + 1] == '1'))
@@ -261,6 +265,11 @@ int key_press(int keycode, void *param)
 	return (0);
 }
 
+int close_window(t_data *data)
+{
+	on_destroy(data);
+	return (0);
+}
 
 int main()
 {
@@ -279,6 +288,7 @@ int main()
 	put_pos(mlx.map,  mlx);
 	mlx.pos_pers = catch_pos(mlx.map);
 	print_map(mlx.map);
+	mlx_hook(mlx.win, DestroyNotify, StructureNotifyMask, &close_window, &mlx);
 	mlx_key_hook(mlx.win, key_press, &mlx);
 	mlx_loop(mlx.mlx);
 }
