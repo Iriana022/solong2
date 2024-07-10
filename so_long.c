@@ -6,7 +6,7 @@
 /*   By: irazafim <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 15:13:06 by irazafim          #+#    #+#             */
-/*   Updated: 2024/07/09 15:55:35 by irazafim         ###   ########.fr       */
+/*   Updated: 2024/07/10 10:41:22 by irazafim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,16 @@ void free_double(char **arr, int size)
 	free(arr);
 }
 
+void free_array_image(int size, t_data *mlx)
+{
+	int i = 0;
+	while (i < size)
+	{
+		mlx_destroy_image(mlx->mlx, mlx->img[i]);
+		i++;
+	}
+}
+
 int ft_strlen(char *s)
 {
 	int i;
@@ -134,28 +144,29 @@ void *img_return(char *path, t_data *mlx)
 	return (mlx_xpm_file_to_image(mlx->mlx, path, &width, &height));
 }
 
+
+
 void put_pos(char **matrix_map, t_data mlx)
 {
 	int y;
 	int x;
 
 	y = 0;
-//	put_img(matrix_map, mlx, pos);
 	while (matrix_map[y] != NULL)
 	{
 		x = 0;
 		while (matrix_map[y][x] != '\0')
 		{ 
 			if (matrix_map[y][x] == 'P')
-				mlx_put_image_to_window(mlx.mlx, mlx.win, img_return("./assets/Terrain/characters.xpm", &mlx), x * 48, y * 48);
+				mlx_put_image_to_window(mlx.mlx, mlx.win, mlx.img[0], x * 48, y * 48);
 	       	else if (matrix_map[y][x] == '1')
-            	mlx_put_image_to_window(mlx.mlx, mlx.win, img_return("./assets/Terrain/wall.xpm", &mlx), x * 48, y * 48);
+            	mlx_put_image_to_window(mlx.mlx, mlx.win, mlx.img[1], x * 48, y * 48);
         	else if (matrix_map[y][x] == 'C')
-        		mlx_put_image_to_window(mlx.mlx, mlx.win, img_return("./assets/Terrain/strawberry.xpm", &mlx), x * 48, y * 48);
+        		mlx_put_image_to_window(mlx.mlx, mlx.win, mlx.img[2], x * 48, y * 48);
         	else if (matrix_map[y][x] == 'E')
-				mlx_put_image_to_window(mlx.mlx, mlx.win, img_return("./assets/Terrain/exit.xpm", &mlx), x * 48, y * 48);
+				mlx_put_image_to_window(mlx.mlx, mlx.win, mlx.img[3], x * 48, y * 48);
 			else if (matrix_map[y][x] == '0')
-				mlx_put_image_to_window(mlx.mlx, mlx.win, img_return("./assets/Terrain/bg.xpm", &mlx), x * 48, y * 48);
+				mlx_put_image_to_window(mlx.mlx, mlx.win, mlx.img[4], x * 48, y * 48);
         	x++;
 		}
 		y++;
@@ -207,7 +218,12 @@ int key_press(int keycode, void *param)
 		
 	if(keycode == XK_Escape)
 	{
+		free(data->pos_pers);
+		free_array_image(5, data);
 		mlx_destroy_window(data->mlx, data->win);
+		mlx_destroy_display(data->mlx);
+		free(data->mlx);
+		free_double(data->map, ft_len(data->map));
 		exit(0);
 	}
 	else if(keycode == XK_d)
@@ -253,6 +269,11 @@ int main()
 
 	mlx.mlx = mlx_init();
 	fd = open("carte3.ber", O_RDONLY);
+	mlx.img[0] = img_return(PLAYER, &mlx);
+	mlx.img[1] = img_return(WALL, &mlx);
+	mlx.img[2] = img_return(COLLECTIBLE, &mlx);
+	mlx.img[3] = img_return(EXIT, &mlx);
+	mlx.img[4] = img_return(BACKGROUND, &mlx);
 	mlx.map = count_lines_map(fd);
 	mlx.win = mlx_new_window(mlx.mlx, 48 * ft_strlen(mlx.map[0]), 48 * ft_len(mlx.map), "solong");
 	put_pos(mlx.map,  mlx);
@@ -260,5 +281,4 @@ int main()
 	print_map(mlx.map);
 	mlx_key_hook(mlx.win, key_press, &mlx);
 	mlx_loop(mlx.mlx);
-	free_double(mlx.map, ft_len(mlx.map));
 }
