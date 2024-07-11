@@ -39,13 +39,10 @@ void mtoa(char ***arr, int lines, int col, char *buf)
 	(*arr)[lines] = NULL;
 }
 
-t_coord	*catch_pos(char **map)
+t_coord	*catch_pos(char **map, int i, int j)
 {
-	int i;
-	int j;
 	t_coord	*coord;
 
-	i = 0;
 	coord = malloc(sizeof(t_coord));
 	if (NULL == coord)
 		return (NULL);
@@ -224,6 +221,38 @@ int on_destroy(t_data *data)
 	return (0);
 }
 
+void right(t_data *data)
+{
+	if (invalid_move(data->pos_pers->x + 1, data->pos_pers->y, data->map) || (data->map[data->pos_pers->y][data->pos_pers->x + 1] == '1'))
+		return;
+	move(data->map, 'r', *(data->pos_pers));
+	(data->pos_pers->x)++;
+}
+
+void left(t_data *data)
+{
+	if (invalid_move(data->pos_pers->x - 1, data->pos_pers->y, data->map) ||  (data->map[data->pos_pers->y][data->pos_pers->x - 1] == '1'))
+		return;
+	move(data->map, 'l', *(data->pos_pers));
+	(data->pos_pers->x)--;
+}
+
+void top(t_data *data)
+{
+	if (invalid_move(data->pos_pers->x, data->pos_pers->y - 1, data->map) || (data->map[data->pos_pers->y - 1][data->pos_pers->x] == '1'))
+		return;
+	move(data->map, 'u', *(data->pos_pers));
+	(data->pos_pers->y)--;
+}
+
+void bottom(t_data *data)
+{
+	if (invalid_move(data->pos_pers->x, data->pos_pers->y + 1, data->map) || (data->map[data->pos_pers->y + 1][data->pos_pers->x] == '1'))
+		return;
+	move(data->map, 'd', *(data->pos_pers));
+	(data->pos_pers->y)++;
+}
+
 int key_press(int keycode, void *param)
 {
 	t_data *data = (t_data *)param;
@@ -231,34 +260,13 @@ int key_press(int keycode, void *param)
 	if(keycode == XK_Escape)
 		on_destroy(data);
 	else if(keycode == XK_d)
-	{
-		if (invalid_move(data->pos_pers->x + 1, data->pos_pers->y, data->map) || (data->map[data->pos_pers->y][data->pos_pers->x + 1] == '1'))
-			return (0);
-		move(data->map, 'r', *(data->pos_pers));
-		(data->pos_pers->x)++;
-	}
+		right(data);
 	else if(keycode == XK_a)
-	{
-	
-		if (invalid_move(data->pos_pers->x - 1, data->pos_pers->y, data->map) ||  (data->map[data->pos_pers->y][data->pos_pers->x - 1] == '1'))
-			return (0);
-		move(data->map, 'l', *(data->pos_pers));
-		(data->pos_pers->x)--;
-	}
+		left(data);
 	else if(keycode == XK_w)
-	{
-		if (invalid_move(data->pos_pers->x, data->pos_pers->y - 1, data->map) || (data->map[data->pos_pers->y - 1][data->pos_pers->x] == '1'))
-			return (0);
-		move(data->map, 'u', *(data->pos_pers));
-		(data->pos_pers->y)--;
-	}
+		top(data);
 	else if(keycode == XK_s)
-	{
-		if (invalid_move(data->pos_pers->x, data->pos_pers->y + 1, data->map) || (data->map[data->pos_pers->y + 1][data->pos_pers->x] == '1'))
-			return (0);
-		move(data->map, 'd', *(data->pos_pers));
-		(data->pos_pers->y)++;
-	}
+		bottom(data);
 	printf("\n----------\n");
 	print_map(data->map);
 	put_pos(data->map, *data);
@@ -286,7 +294,7 @@ int main()
 	mlx.map = count_lines_map(fd);
 	mlx.win = mlx_new_window(mlx.mlx, 48 * ft_strlen(mlx.map[0]), 48 * ft_len(mlx.map), "solong");
 	put_pos(mlx.map,  mlx);
-	mlx.pos_pers = catch_pos(mlx.map);
+	mlx.pos_pers = catch_pos(mlx.map, 0, 0);
 	print_map(mlx.map);
 	mlx_hook(mlx.win, DestroyNotify, StructureNotifyMask, &close_window, &mlx);
 	mlx_key_hook(mlx.win, key_press, &mlx);
